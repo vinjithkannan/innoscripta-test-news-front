@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  innoscripta-front-app:
+    container_name: innoscripta-front
+    image: innoscripta-front
+    build:
+      context: .
+      target: development
+    volumes:
+      - ./src:/innoscripta-front-app/src
+    ports:
+      - 3000:3000
