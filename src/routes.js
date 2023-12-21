@@ -40,6 +40,7 @@ Coded by www.creative-tim.com
 import Icon from "@mui/material/Icon";
 
 import SignIn from "layouts/pages/authentication/sign-in";
+import Profile from "layouts/pages/authentication/profile";
 import News from "layouts/pages/news";
 
 const routes = [
@@ -58,6 +59,14 @@ const routes = [
     rowsPerColumn: 2,
     route: "/pages/authentication/sign-in",
     component: <SignIn />,
+  },
+  {
+    name: "Profile",
+    icon: <Icon>Profile</Icon>,
+    columns: 1,
+    rowsPerColumn: 2,
+    route: "/profile",
+    component: <Profile />,
   },
 ];
 

@@ -1,18 +1,16 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
 import React, { useEffect, useState } from "react";
 import MKBox from "components/MKBox";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import MKTypography from "components/MKTypography";
-import axios from "axios";
-// eslint-disable-next-line no-unused-vars
-import { Checkbox } from "@mui/material";
 import MKButton from "components/MKButton";
+import { useAuth } from "contexts/AuthContext";
+import axios from "../../../AxiosClient";
 
-// eslint-disable-next-line react/prop-types, no-unused-vars
 const NewsFilter = ({ handleFilter }) => {
-  const httpClient = axios.create({
-    baseURL: "http://localhost/api/",
-  });
+  const { user } = useAuth();
   const [authors, setAuthors] = useState([]);
   const [categories, setCategories] = useState([]);
   const [sources, setSources] = useState([]);
@@ -25,13 +23,13 @@ const NewsFilter = ({ handleFilter }) => {
   }, []);
   const getFilters = () => {
     try {
-      httpClient.get("authors").then((responseAuthors) => {
+      axios.get("authors").then((responseAuthors) => {
         setAuthors(responseAuthors.data);
       });
-      httpClient.get("categories").then((responseCategories) => {
+      axios.get("categories").then((responseCategories) => {
         setCategories(responseCategories.data);
       });
-      httpClient.get("sources").then((responseSources) => {
+      axios.get("sources").then((responseSources) => {
         setSources(responseSources.data);
       });
     } catch (error) {

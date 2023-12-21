@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import DefaultNavbar from "examples/Navbars/DefaultNavbar";
 import routes from "routes";
@@ -7,39 +8,25 @@ import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import MKTypography from "components/MKTypography";
-import axios from "axios";
 import { useCookies } from "react-cookie";
 // eslint-disable-next-line no-unused-vars
 import NewsFilter from "./Filter/NewsFilter";
+import axios from "../../AxiosClient";
+import { useAuth } from "contexts/AuthContext";
 
 function News() {
-  const httpClient = axios.create({
-    baseURL: "http://localhost/api/",
-  });
+  const { user } = useAuth();
   const [cookies] = useCookies(["token"]);
   const [newses, setNewses] = useState([]);
   useEffect(() => {
-    const token = cookies.token;
-
-    if (!token) {
-      console.error("Token is missing");
-      return;
-    }
     fetchNews();
   }, []);
 
-  const fetchNews = () => {
-    const token = cookies.token;
+  const fetchNews = (filters) => {
     try {
-      httpClient
-        .get("news", {
-          headers: {
-            Authorization: token,
-          },
-        })
-        .then((response) => {
-          setNewses(response.data);
-        });
+      axios.post("news", filters).then((response) => {
+        setNewses(response.data);
+      });
     } catch (error) {
       console.log(error);
     }
@@ -49,9 +36,7 @@ function News() {
   const handleFilter = (filters) => {
     try {
       if (filters) {
-        httpClient.post("news", filters).then((response) => {
-          setNewses(response.data);
-        });
+        fetchNews(filters);
       }
     } catch (error) {
       console.log(error);

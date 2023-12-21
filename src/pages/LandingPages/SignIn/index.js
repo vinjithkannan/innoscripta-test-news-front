@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /**
 =========================================================
 * Material Kit 2 React - v2.1.0
@@ -16,7 +17,7 @@ Coded by www.creative-tim.com
 import { useState } from "react";
 import { useCookies } from "react-cookie";
 // react-router-dom components
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -36,51 +37,43 @@ import routes from "routes";
 
 // Images
 import bgImage from "assets/images/bg-sign-in-basic.jpeg";
-import axios from "axios";
+import axios from "AxiosClient";
+import { useAuth } from "contexts/AuthContext";
 
 function SignInBasic() {
-  const httpClient = axios.create({
-    baseURL: "http://localhost/api/",
-  });
-  //const navigate = useNavigate;
+  const navigate = useNavigate();
   //  const [rememberMe, setRememberMe] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { setUser, csrfToken } = useAuth();
   const [errors, setErrors] = useState([]);
   // eslint-disable-next-line no-unused-vars
   const [cookies, setCookie] = useCookies(["token"]);
 
-  const doLogin = (email, password) => {
-    httpClient
-      .post(
-        "login",
-        {
-          email: email,
-          password: password,
-        },
-        {
-          withCredentials: true,
-        }
-      )
-      .then((response) => {
-        console.log(response.cookies);
-        const token = response?.headers?.cookies?.token;
-        const user = response.data.user;
-        setCookie("token", token, { path: "/" });
-        setCookie("user", user, { path: "/" });
-        window.location.href = "/pages/news";
-        //navigate("/pages/news");
-      })
-      .catch((error) => {
-        if (error.response) {
-          setErrors((errors) => [error.response.data.errors, ...errors]);
-          console.log("server responded" + error.response);
-        } else if (error.request) {
-          console.log("network error");
-        } else {
-          console.log(error);
-        }
-      });
+  const doLogin = async () => {
+    const body = {
+      email: email,
+      password: password,
+    };
+    await csrfToken();
+    try {
+      const resp = await axios.post("login", body);
+      if (resp.status === 200) {
+        setUser(resp.data.user);
+        navigate("/pages/news");
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+        setErrors(error.response.data.message);
+      } else if (error.response) {
+        setErrors((errors) => [error.response.data.errors, ...errors]);
+        console.log("server responded" + error.response);
+      } else if (error.request) {
+        console.log("network error");
+      } else {
+        console.log(error);
+      }
+    }
   };
 
   return (
@@ -124,13 +117,17 @@ function SignInBasic() {
                 </MKTypography>
               </MKBox>
               <MKBox pt={4} pb={3} px={3}>
-                {errors.map((error, id) => {
-                  return (
-                    <MKTypography variant="caption" color="error" key={id}>
-                      {error}
-                    </MKTypography>
-                  );
-                })}
+                {errors?.length ? (
+                  errors.map((error, id) => {
+                    return (
+                      <MKTypography variant="caption" color="error" key={id}>
+                        {error}
+                      </MKTypography>
+                    );
+                  })
+                ) : (
+                  <span></span>
+                )}
                 <MKBox component="form" role="form">
                   <MKBox mb={2}>
                     <MKInput
